@@ -1,6 +1,10 @@
 server:
   port: 8002
 spring:
+  data:
+    redis:
+      host: 8.137.33.37
+      port: 6379
   datasource:
     username: root
     password: yzh@0421

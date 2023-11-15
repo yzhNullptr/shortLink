@@ -1,9 +1,6 @@
 package org.yzh.admin.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,7 +8,7 @@ import java.util.Date;
 
 /**
  * 用户
- * @TableName t_user
+ * @TableNamee t_user
  */
 @TableName(value ="t_user")
 @Data
@@ -33,9 +30,9 @@ public class UserDO implements Serializable {
     private String password;
 
     /**
-     * 真是姓名
+     * 真实姓名
      */
-    private String realNam;
+    private String realName;
 
     /**
      * 手机号
@@ -55,16 +52,19 @@ public class UserDO implements Serializable {
     /**
      * 创建时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /**
      * 修改时间
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateTime;
 
     /**
      * 逻辑删除 0:未删除   1：已删除
      */
+    @TableField(fill = FieldFill.INSERT)
     private Integer delFlag;
 
     @TableField(exist = false)
@@ -85,7 +85,7 @@ public class UserDO implements Serializable {
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
             && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
-            && (this.getRealNam() == null ? other.getRealNam() == null : this.getRealNam().equals(other.getRealNam()))
+            && (this.getRealName() == null ? other.getRealName() == null : this.getRealName().equals(other.getRealName()))
             && (this.getPhone() == null ? other.getPhone() == null : this.getPhone().equals(other.getPhone()))
             && (this.getMail() == null ? other.getMail() == null : this.getMail().equals(other.getMail()))
             && (this.getDeletionTime() == null ? other.getDeletionTime() == null : this.getDeletionTime().equals(other.getDeletionTime()))
@@ -101,7 +101,7 @@ public class UserDO implements Serializable {
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getUsername() == null) ? 0 : getUsername().hashCode());
         result = prime * result + ((getPassword() == null) ? 0 : getPassword().hashCode());
-        result = prime * result + ((getRealNam() == null) ? 0 : getRealNam().hashCode());
+        result = prime * result + ((getRealName() == null) ? 0 : getRealName().hashCode());
         result = prime * result + ((getPhone() == null) ? 0 : getPhone().hashCode());
         result = prime * result + ((getMail() == null) ? 0 : getMail().hashCode());
         result = prime * result + ((getDeletionTime() == null) ? 0 : getDeletionTime().hashCode());
@@ -120,7 +120,7 @@ public class UserDO implements Serializable {
         sb.append(", id=").append(id);
         sb.append(", username=").append(username);
         sb.append(", password=").append(password);
-        sb.append(", realNam=").append(realNam);
+        sb.append(", realName=").append(realName);
         sb.append(", phone=").append(phone);
         sb.append(", mail=").append(mail);
         sb.append(", deletionTime=").append(deletionTime);

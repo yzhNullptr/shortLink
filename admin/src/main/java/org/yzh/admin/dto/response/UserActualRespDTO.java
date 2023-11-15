@@ -24,7 +24,7 @@ public class UserActualRespDTO {
     /**
      * 真是姓名
      */
-    private String realNam;
+    private String realName;
 
     /**
      * 手机号
