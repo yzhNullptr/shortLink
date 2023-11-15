@@ -6,4 +6,5 @@ package org.yzh.admin.common.constant;
 public class RedisCacheConstant {
 
     public static final String LOCK_USER_REGISTER_KEY="shortLink:lock:user-register:";
+    public static final String USER_LOGIN_KEY="shortLink:user:login_";
 }

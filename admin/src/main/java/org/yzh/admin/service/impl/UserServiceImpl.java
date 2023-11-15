@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.yzh.admin.common.constant.RedisCacheConstant.LOCK_USER_REGISTER_KEY;
+import static org.yzh.admin.common.constant.RedisCacheConstant.USER_LOGIN_KEY;
 
 /**
 * 用户接口实现层
@@ -93,7 +94,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
 
     @Override
     public UserLoginRespDTO login(UserLoginReqDTO requestParma) {
-        String key="shortLink:user:login_"+requestParma.getUsername();
+        String key=USER_LOGIN_KEY+requestParma.getUsername();
         LambdaQueryWrapper<UserDO> lambdaQueryWrapper = Wrappers.lambdaQuery(UserDO.class)
                 .eq(UserDO::getUsername, requestParma.getUsername())
                 .eq(UserDO::getPassword, requestParma.getPassword())
@@ -122,8 +123,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
 
     @Override
     public Boolean checkLogin(String username,String token) {
-        String key="shortLink:user:login_"+username;
+        String key=USER_LOGIN_KEY+username;
         return  stringRedisTemplate.opsForHash().get(key,token)!=null ;
+    }
+
+    @Override
+    public void logout(String username, String token) {
+        String key=USER_LOGIN_KEY+username;
+        if (checkLogin(username,token)){
+            stringRedisTemplate.delete(key);
+            return;
+        }
+        throw new ClientException("用户token不存在或用户未登录");
     }
 }
 
