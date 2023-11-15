@@ -5,8 +5,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.yzh.admin.common.convention.result.Result;
 import org.yzh.admin.common.convention.result.Results;
+import org.yzh.admin.dto.request.UserLoginReqDTO;
 import org.yzh.admin.dto.request.UserRegisterReqDTO;
+import org.yzh.admin.dto.request.UserUpdateReqDTO;
 import org.yzh.admin.dto.response.UserActualRespDTO;
+import org.yzh.admin.dto.response.UserLoginRespDTO;
 import org.yzh.admin.dto.response.UserRespDTO;
 import org.yzh.admin.service.UserService;
 
@@ -61,6 +64,29 @@ public class UserController {
         return Results.success();
     }
 
+    /**
+     * 修改用户
+     */
+    @PutMapping("/api/shortLink/v1/user")
+    public Result<Void> update(@RequestBody UserUpdateReqDTO requestParam){
+        userService.update(requestParam);
+        return Results.success();
+    }
 
+    /**
+     * 用户登录
+     */
+    @PostMapping("/api/shortLink/v1/user/login")
+    public Result<UserLoginRespDTO> login(@RequestBody UserLoginReqDTO requestParma){
+        return Results.success(userService.login(requestParma));
+    }
+
+    /**
+     * 检查用户是否登录
+     */
+    @GetMapping("/api/shortLink/v1/user/check-login")
+    public Result<Boolean> checkLogin(@RequestParam("username")String username,@RequestParam("token")String token){
+        return Results.success( userService.checkLogin(username,token));
+    }
 }
 
