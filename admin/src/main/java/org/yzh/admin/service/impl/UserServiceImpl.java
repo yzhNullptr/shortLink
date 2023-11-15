@@ -63,9 +63,10 @@ private final RedissonClient redissonClient;
                     throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);
                 }
                 userRegisterCachePenetrationBloomFilter.add(requestParma.getUsername());
-                return;
-            }
+
+            }else{
                 throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
+            }
 
         }finally {
             lock.unlock();
