@@ -1,5 +1,6 @@
 package org.yzh.admin.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -7,8 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.yzh.admin.dao.entity.GroupDO;
 import org.yzh.admin.dao.mapper.GroupMapper;
+import org.yzh.admin.dto.response.ShortLinkGroupRespDTO;
 import org.yzh.admin.service.GroupService;
 import org.yzh.admin.toolkit.RandomGenerator;
+
+import java.util.List;
 
 /**
  * 短链接接口分组实现层
@@ -31,6 +35,18 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .sortOrder(0)
                 .build();
         baseMapper.insert(groupDO);
+    }
+
+    @Override
+    public List<ShortLinkGroupRespDTO> listGroup() {
+        //TODO 从当前的请求里面获取用户名
+        LambdaQueryWrapper<GroupDO> groupDOLambdaQueryWrapper = Wrappers.lambdaQuery(GroupDO.class)
+                .eq(GroupDO::getDelFlag, 0)
+                .orderByDesc(GroupDO::getSortOrder)
+                .isNull(GroupDO::getUsername)
+                .orderByDesc(GroupDO::getUpdateTime);
+        List<GroupDO> groupDOS = baseMapper.selectList(groupDOLambdaQueryWrapper);
+        return BeanUtil.copyToList(groupDOS,ShortLinkGroupRespDTO.class);
     }
 
     private boolean hasGid(String gid){
