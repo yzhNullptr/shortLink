@@ -1,10 +1,10 @@
 package org.yzh.admin.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
+import org.yzh.admin.common.database.BaseDO;
 
 /**
  * 用户
@@ -12,7 +12,7 @@ import java.util.Date;
  */
 @TableName(value ="t_user")
 @Data
-public class UserDO implements Serializable {
+public class UserDO extends BaseDO {
     /**
      * ID
      */
@@ -49,26 +49,7 @@ public class UserDO implements Serializable {
      */
     private Long deletionTime;
 
-    /**
-     * 创建时间
-     */
-    @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
 
-    /**
-     * 修改时间
-     */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date updateTime;
-
-    /**
-     * 逻辑删除 0:未删除   1：已删除
-     */
-    @TableField(fill = FieldFill.INSERT)
-    private Integer delFlag;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 
     @Override
     public boolean equals(Object that) {
@@ -113,22 +94,14 @@ public class UserDO implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", username=").append(username);
-        sb.append(", password=").append(password);
-        sb.append(", realName=").append(realName);
-        sb.append(", phone=").append(phone);
-        sb.append(", mail=").append(mail);
-        sb.append(", deletionTime=").append(deletionTime);
-        sb.append(", createTime=").append(createTime);
-        sb.append(", updateTime=").append(updateTime);
-        sb.append(", delFlag=").append(delFlag);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
+        return "UserDO{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", realName='" + realName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", mail='" + mail + '\'' +
+                ", deletionTime=" + deletionTime +
+                '}';
     }
 }

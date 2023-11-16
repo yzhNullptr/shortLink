@@ -1,21 +1,23 @@
 package org.yzh.admin.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.util.Date;
+import lombok.NoArgsConstructor;
+import org.yzh.admin.common.database.BaseDO;
 
 /**
  * 短链接分组实体
  */
 @TableName(value ="t_group")
 @Data
-public class GroupDO implements Serializable {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class GroupDO extends BaseDO {
     /**
      * ID
      */
@@ -42,22 +44,5 @@ public class GroupDO implements Serializable {
      */
     private Integer sortOrder;
 
-    /**
-     * 创建时间
-     */
-    private Date createTime;
 
-    /**
-     * 修改时间
-     */
-    private Date updateTime;
-
-    /**
-     * 删除标识 0：未删除 1：已删除
-     */
-    private Integer delFlag;
-
-    @Serial
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }
