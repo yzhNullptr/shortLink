@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.yzh.admin.common.biz.user.UserContext;
 import org.yzh.admin.dao.entity.GroupDO;
 import org.yzh.admin.dao.mapper.GroupMapper;
 import org.yzh.admin.dto.response.ShortLinkGroupRespDTO;
@@ -31,6 +32,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         GroupDO groupDO = GroupDO
                 .builder()
                 .gid(gid)
+                .username(UserContext.getUsername())
                 .name(groupName)
                 .sortOrder(0)
                 .build();
@@ -42,8 +44,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         //TODO 从当前的请求里面获取用户名
         LambdaQueryWrapper<GroupDO> groupDOLambdaQueryWrapper = Wrappers.lambdaQuery(GroupDO.class)
                 .eq(GroupDO::getDelFlag, 0)
+                .eq(GroupDO::getUsername, UserContext.getUsername())
                 .orderByDesc(GroupDO::getSortOrder)
-                .isNull(GroupDO::getUsername)
                 .orderByDesc(GroupDO::getUpdateTime);
         List<GroupDO> groupDOS = baseMapper.selectList(groupDOLambdaQueryWrapper);
         return BeanUtil.copyToList(groupDOS,ShortLinkGroupRespDTO.class);
@@ -52,8 +54,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     private boolean hasGid(String gid){
         LambdaQueryWrapper<GroupDO> queryWrapper = Wrappers.lambdaQuery(GroupDO.class)
                 .eq(GroupDO::getGid, gid)
-                //TODO  设置用户名
-                .eq(GroupDO::getUsername, null);
+                .eq(GroupDO::getUsername, UserContext.getUsername());
         GroupDO hasGroupFlag = baseMapper.selectOne(queryWrapper);
         return hasGroupFlag==null;
     }
