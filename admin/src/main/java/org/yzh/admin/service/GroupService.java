@@ -2,6 +2,7 @@ package org.yzh.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.yzh.admin.dao.entity.GroupDO;
+import org.yzh.admin.dto.request.ShortLinkGroupSortReqDTO;
 import org.yzh.admin.dto.request.ShortLinkGroupUpdateReqDTO;
 import org.yzh.admin.dto.response.ShortLinkGroupRespDTO;
 
@@ -28,4 +29,18 @@ public interface GroupService extends IService<GroupDO> {
      * @param requestParam 短链接参数 gid  name
      */
     void updateGroup(ShortLinkGroupUpdateReqDTO requestParam);
+
+    /**
+     * 删除短链接分组
+     *
+     * @param gid 分组id
+     */
+    void deleteGroup(String gid);
+
+    /**
+     * 短链接分组排序
+     *
+     * @param requestParam 短链接分组排序参数
+     */
+    void sortGroup(List<ShortLinkGroupSortReqDTO> requestParam);
 }

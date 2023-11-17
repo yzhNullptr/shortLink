@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.yzh.admin.common.biz.user.UserContext;
 import org.yzh.admin.dao.entity.GroupDO;
 import org.yzh.admin.dao.mapper.GroupMapper;
+import org.yzh.admin.dto.request.ShortLinkGroupSortReqDTO;
 import org.yzh.admin.dto.request.ShortLinkGroupUpdateReqDTO;
 import org.yzh.admin.dto.response.ShortLinkGroupRespDTO;
 import org.yzh.admin.service.GroupService;
@@ -62,6 +63,31 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         GroupDO groupDO = new GroupDO();
         groupDO.setName(requestParam.getName());
         baseMapper.update(groupDO,updateWrapper);
+    }
+
+    @Override
+    public void deleteGroup(String gid) {
+        LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                .eq(GroupDO::getDelFlag, 0)
+                .eq(GroupDO::getGid, gid)
+                .eq(GroupDO::getUsername, UserContext.getUsername());
+        GroupDO groupDO = new GroupDO();
+        groupDO.setDelFlag(1);
+        baseMapper.update(groupDO,updateWrapper);
+    }
+
+    @Override
+    public void sortGroup(List<ShortLinkGroupSortReqDTO> requestParam) {
+            requestParam.forEach(param->{
+                GroupDO groupDO = GroupDO.builder()
+                        .sortOrder(param.getSortOrder())
+                        .build();
+                LambdaUpdateWrapper<GroupDO> updateWrapper = Wrappers.lambdaUpdate(GroupDO.class)
+                        .eq(GroupDO::getUsername, UserContext.getUsername())
+                        .eq(GroupDO::getGid, param.getGid())
+                        .eq(GroupDO::getDelFlag, 0);
+                baseMapper.update(groupDO,updateWrapper);
+            });
     }
 
     private boolean hasGid(String gid){
