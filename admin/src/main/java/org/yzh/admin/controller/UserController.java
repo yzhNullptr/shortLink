@@ -58,7 +58,7 @@ public class UserController {
      * @param requestParam 用户参数
      * @return 注册成功或者抛出异常
      */
-    @PostMapping("/api/shortLink/v1/user")
+    @PostMapping("/api/shortLink/admin/v1/user")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam){
         userService.register(requestParam);
         return Results.success();
