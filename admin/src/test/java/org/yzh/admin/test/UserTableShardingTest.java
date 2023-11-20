@@ -11,6 +11,7 @@ public class UserTableShardingTest {
             "    origin_url      varchar(1024) charset utf8mb4 null comment '原始链接',\n" +
             "    click_num       int                           null comment '点击量',\n" +
             "    gid             varchar(32) charset utf8mb4   null comment '分组标识',\n" +
+            "    favicon         varchar(256)                  null comment '网站图标',\n" +
             "    enable_status   tinyint                       null comment '启用标识 0：启用 1：未启用',\n" +
             "    create_type     tinyint                       null comment '创建类型 0：接口创建 1：控制台创建',\n" +
             "    valid_date_type tinyint                       null comment '有效期类型 0：永久有效 1：自定义有效期',\n" +
@@ -22,8 +23,7 @@ public class UserTableShardingTest {
             "    constraint idx_unique_full_short_url\n" +
             "        unique (full_short_url)\n" +
             ")\n" +
-            "    collate = utf8_bin;\n" +
-            "\n";
+            "    collate = utf8mb3_bin;";
     public static void main(String[] args) {
         for (int i = 0; i < 16; i++) {
             System.out.printf((SQL) + "%n",i);
