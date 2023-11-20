@@ -28,7 +28,6 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     @Override
     public void saveGroup(String groupName) {
         String gid ;
-
         do {
             gid = RandomGenerator.generateRandom();
         } while (!hasGid(gid));

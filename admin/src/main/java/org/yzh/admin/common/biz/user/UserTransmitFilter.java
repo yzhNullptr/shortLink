@@ -57,7 +57,6 @@ public class UserTransmitFilter implements Filter {
                     UserContext.setUser(userInfoDTO);
             }
         }
-
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
