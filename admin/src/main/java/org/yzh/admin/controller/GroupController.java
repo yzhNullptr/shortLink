@@ -31,7 +31,7 @@ public class GroupController {
         return Results.success();
     }
     /**
-     * 根据名称查询分组
+     * 查询分组
      */
     @GetMapping("/api/shortLink/admin/v1/group")
     public Result<List<ShortLinkGroupRespDTO>> listGroup(){
