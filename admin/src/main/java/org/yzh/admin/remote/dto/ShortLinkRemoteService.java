@@ -1,6 +1,7 @@
 package org.yzh.admin.remote.dto;
 
 import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -38,7 +39,7 @@ public interface ShortLinkRemoteService {
      * @return 修改结果
      */
     default void updateShortLink(ShortLinkUpdateReqDTO requestParam){
-        String responseBody = HttpUtil.post("http://127.0.0.1:8001/api/shortLink/v1/update", JSON.toJSONString(requestParam));
+        String responseBody = HttpUtil.createRequest(Method.PUT, "http://127.0.0.1:8001/api/shortLink/v1/update").body(JSON.toJSONString(requestParam)).execute().body();
     }
 
     /**
