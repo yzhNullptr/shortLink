@@ -84,7 +84,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         }
         rBloomFilter.add(fullShortUrl);
         return ShortLinkCreateRespDTO.builder()
-                .fullShortLink(requestParam.getDomainProtocol()+shortLinkDO.getFullShortUrl())
+                .fullShortLink("http://"+shortLinkDO.getFullShortUrl())
                 .gid(requestParam.getGid())
                 .originUrl(requestParam.getOriginUrl())
                 .build();
