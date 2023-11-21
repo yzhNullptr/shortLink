@@ -7,8 +7,9 @@ import org.yzh.project.common.convention.result.Result;
 import org.yzh.project.common.convention.result.Results;
 import org.yzh.project.dto.req.ShortLinkCreateReqDTO;
 import org.yzh.project.dto.req.ShortLinkPageReqDTO;
-import org.yzh.project.dto.resp.ShortLinkGroupCountQueryRespDTO;
+import org.yzh.project.dto.req.ShortLinkUpdateReqDTO;
 import org.yzh.project.dto.resp.ShortLinkCreateRespDTO;
+import org.yzh.project.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.yzh.project.dto.resp.ShortLinkPageRespDTO;
 import org.yzh.project.service.ShortLinkService;
 
@@ -28,6 +29,11 @@ public class ShortLinkController {
     @PostMapping("/api/shortLink/v1/create")
     public Result<ShortLinkCreateRespDTO> createShortLink(@RequestBody ShortLinkCreateReqDTO requestParam){
         return Results.success(shortLinkService.createShortLink(requestParam));
+    }
+    @PutMapping("/api/shortLink/v1/update")
+    public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam){
+        shortLinkService.updateShortLink(requestParam);
+        return Results.success();
     }
 
     /**
