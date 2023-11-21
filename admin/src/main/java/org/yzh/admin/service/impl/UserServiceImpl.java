@@ -24,6 +24,7 @@ import org.yzh.admin.dto.request.UserRegisterReqDTO;
 import org.yzh.admin.dto.request.UserUpdateReqDTO;
 import org.yzh.admin.dto.response.UserLoginRespDTO;
 import org.yzh.admin.dto.response.UserRespDTO;
+import org.yzh.admin.service.GroupService;
 import org.yzh.admin.service.UserService;
 
 import java.util.UUID;
@@ -43,6 +44,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
     private final RedissonClient redissonClient;
     private final StringRedisTemplate stringRedisTemplate;
+    private final GroupService groupService;
 
     @Override
     public UserRespDTO getUserByUsername(String username) {
@@ -81,11 +83,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
                         throw new ClientException(USER_EXIST);
                 }
                 userRegisterCachePenetrationBloomFilter.add(requestParma.getUsername());
-
+                groupService.saveGroup("default");
             }else{
                 throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
             }
-
         }finally {
             lock.unlock();
         }
