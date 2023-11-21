@@ -1,6 +1,8 @@
 package org.yzh.project.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.yzh.project.common.convention.result.Result;
@@ -23,6 +25,14 @@ import java.util.List;
 public class ShortLinkController {
 
     private final ShortLinkService shortLinkService;
+
+
+    @GetMapping("/{shortLink}")
+    public void restoreUrl(@PathVariable("shortLink") String shortLink, HttpServletRequest request, HttpServletResponse response){
+         shortLinkService.restoreUrl(shortLink,request,response);
+    }
+
+
     /**
      * 创建短链接
      */

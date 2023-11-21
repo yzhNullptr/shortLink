@@ -2,6 +2,8 @@ package org.yzh.project.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.yzh.project.dao.entity.ShortLinkDO;
 import org.yzh.project.dto.req.ShortLinkCreateReqDTO;
 import org.yzh.project.dto.req.ShortLinkPageReqDTO;
@@ -47,4 +49,12 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      */
     List<ShortLinkGroupCountQueryRespDTO> listGroupShortLinkCount(List<String> gids);
 
+    /**
+     * 重定向到原始链接
+     *
+     * @param shortLink 短链接后缀
+     * @param request HTTP请求
+     * @param response HTTP响应
+     */
+    void restoreUrl(String shortLink, HttpServletRequest request, HttpServletResponse response);
 }
