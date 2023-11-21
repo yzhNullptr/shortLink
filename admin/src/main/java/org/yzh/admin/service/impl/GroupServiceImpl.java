@@ -8,15 +8,20 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.yzh.admin.common.biz.user.UserContext;
+import org.yzh.admin.common.convention.result.Result;
 import org.yzh.admin.dao.entity.GroupDO;
 import org.yzh.admin.dao.mapper.GroupMapper;
 import org.yzh.admin.dto.request.ShortLinkGroupSortReqDTO;
 import org.yzh.admin.dto.request.ShortLinkGroupUpdateReqDTO;
 import org.yzh.admin.dto.response.ShortLinkGroupRespDTO;
+import org.yzh.admin.remote.dto.ShortLinkRemoteService;
+import org.yzh.admin.remote.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.yzh.admin.service.GroupService;
 import org.yzh.admin.toolkit.RandomGenerator;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 短链接接口分组实现层
@@ -24,6 +29,12 @@ import java.util.List;
 @Slf4j
 @Service
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
+
+    /**
+     * /后续重构为SpringCloud Feign调用
+     */
+    private final ShortLinkRemoteService shortLinkRemoteService=new ShortLinkRemoteService() {
+    };
 
     @Override
     public void saveGroup(String groupName) {
@@ -43,14 +54,22 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
 
     @Override
     public List<ShortLinkGroupRespDTO> listGroup() {
-        //TODO 从当前的请求里面获取用户名
         LambdaQueryWrapper<GroupDO> groupDOLambdaQueryWrapper = Wrappers.lambdaQuery(GroupDO.class)
                 .eq(GroupDO::getDelFlag, 0)
                 .eq(GroupDO::getUsername, UserContext.getUsername())
                 .orderByDesc(GroupDO::getSortOrder)
                 .orderByDesc(GroupDO::getUpdateTime);
         List<GroupDO> groupDOS = baseMapper.selectList(groupDOLambdaQueryWrapper);
-        return BeanUtil.copyToList(groupDOS,ShortLinkGroupRespDTO.class);
+        Result<List<ShortLinkGroupCountQueryRespDTO>> listResult = shortLinkRemoteService
+                .listGroupShortLinkCount(groupDOS.stream().map(GroupDO::getGid).toList());
+        List<ShortLinkGroupRespDTO> shortLinkGroupRespDTOS = BeanUtil.copyToList(groupDOS, ShortLinkGroupRespDTO.class);
+        shortLinkGroupRespDTOS.forEach(echo->{
+            Optional<ShortLinkGroupCountQueryRespDTO> first = listResult.getData().stream()
+                    .filter(item -> Objects.equals(item.getGid(), echo.getGid()))
+                    .findFirst();
+            first.ifPresent(item->echo.setShortLinkCount(first.get().getShortLinkCount()));
+        });
+         return shortLinkGroupRespDTOS;
     }
 
     @Override

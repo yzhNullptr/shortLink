@@ -3,6 +3,7 @@ package org.yzh.project.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.text.StrBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -17,9 +18,13 @@ import org.yzh.project.dao.mapper.ShortLinkMapper;
 import org.yzh.project.dto.req.ShortLinkCreateReqDTO;
 import org.yzh.project.dto.req.ShortLinkPageReqDTO;
 import org.yzh.project.dto.resp.ShortLinkCreateRespDTO;
+import org.yzh.project.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.yzh.project.dto.resp.ShortLinkPageRespDTO;
 import org.yzh.project.service.ShortLinkService;
 import org.yzh.project.toolkit.HashUtil;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 短链接接口实现层
@@ -78,6 +83,17 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .orderByDesc(ShortLinkDO::getCreateTime);
         IPage<ShortLinkDO> resultPage = baseMapper.selectPage(requestParma, lambdaQueryWrapper);
         return resultPage.convert(each-> BeanUtil.toBean(each,ShortLinkPageRespDTO.class));
+    }
+
+    @Override
+    public List<ShortLinkGroupCountQueryRespDTO> listGroupShortLinkCount(List<String> requestParam) {
+        QueryWrapper<ShortLinkDO> wrapper = Wrappers.query(new ShortLinkDO())
+                .select("gid as gid,count(*) as shortLinkCount")
+                .in("gid", requestParam)
+                .eq("enable_status", 0)
+                .groupBy("gid");
+        List<Map<String, Object>> shortLinkDOList = baseMapper.selectMaps(wrapper);
+        return BeanUtil.copyToList(shortLinkDOList, ShortLinkGroupCountQueryRespDTO.class);
     }
 
     private String generateSuffix(ShortLinkCreateReqDTO requestParam){

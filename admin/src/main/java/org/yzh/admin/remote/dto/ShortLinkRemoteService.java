@@ -8,9 +8,11 @@ import org.yzh.admin.common.convention.result.Result;
 import org.yzh.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import org.yzh.admin.remote.dto.req.ShortLinkPageReqDTO;
 import org.yzh.admin.remote.dto.resp.ShortLinkCreateRespDTO;
+import org.yzh.admin.remote.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.yzh.admin.remote.dto.resp.ShortLinkPageRespDTO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,6 +44,19 @@ public interface ShortLinkRemoteService {
         requestMap.put("current",requestParma.getCurrent());
         requestMap.put("size",requestParma.getSize());
         String resultPageStr = HttpUtil.get("http://127.0.0.1:8001/api/shortLink/v1/page", requestMap);
+        return JSON.parseObject(resultPageStr, new TypeReference<>() {
+        });
+    }
+    /**
+     * 查询分组内短链接数量
+     *
+     * @param requestParma 分组标识
+     * @return 返回参数
+     */
+    default Result<List<ShortLinkGroupCountQueryRespDTO>> listGroupShortLinkCount(List<String> requestParma){
+        Map<String,Object> requestMap=new HashMap<>();
+        requestMap.put("requestParam",requestParma);
+        String resultPageStr = HttpUtil.get("http://127.0.0.1:8001/api/shortLink/v1/count", requestMap);
         return JSON.parseObject(resultPageStr, new TypeReference<>() {
         });
     }
