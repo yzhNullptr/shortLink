@@ -3,9 +3,11 @@ package org.yzh.admin.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.web.bind.annotation.*;
 import org.yzh.admin.common.convention.result.Result;
+import org.yzh.admin.common.convention.result.Results;
 import org.yzh.admin.remote.dto.ShortLinkRemoteService;
 import org.yzh.admin.remote.dto.req.ShortLinkCreateReqDTO;
 import org.yzh.admin.remote.dto.req.ShortLinkPageReqDTO;
+import org.yzh.admin.remote.dto.req.ShortLinkUpdateReqDTO;
 import org.yzh.admin.remote.dto.resp.ShortLinkCreateRespDTO;
 import org.yzh.admin.remote.dto.resp.ShortLinkGroupCountQueryRespDTO;
 import org.yzh.admin.remote.dto.resp.ShortLinkPageRespDTO;
@@ -31,6 +33,14 @@ public class ShortLinkController {
         return shortLinkRemoteService.createShortLink(requestParam);
     }
 
+    /**
+     * 修改短链接
+     */
+    @PutMapping("/api/shortLink/admin/v1/update")
+    public Result<Void> updateShortLink(@RequestBody ShortLinkUpdateReqDTO requestParam){
+        shortLinkRemoteService.updateShortLink(requestParam);
+        return Results.success();
+    }
     /**
      * 分页查询短链接
      */
