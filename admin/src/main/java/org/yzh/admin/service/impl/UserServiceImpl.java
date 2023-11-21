@@ -83,7 +83,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO>
                         throw new ClientException(USER_EXIST);
                 }
                 userRegisterCachePenetrationBloomFilter.add(requestParma.getUsername());
-                groupService.saveGroup("default");
+                groupService.saveGroup(requestParma.getUsername(),"default");
             }else{
                 throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
             }
