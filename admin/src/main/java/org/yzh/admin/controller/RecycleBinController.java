@@ -11,8 +11,9 @@ import org.yzh.admin.common.convention.result.Result;
 import org.yzh.admin.common.convention.result.Results;
 import org.yzh.admin.remote.dto.ShortLinkRemoteService;
 import org.yzh.admin.remote.dto.req.RecycleBinSaveReqDTO;
-import org.yzh.admin.remote.dto.req.ShortLinkPageReqDTO;
+import org.yzh.admin.remote.dto.req.ShortLinkRecycleBinPageReqDTO;
 import org.yzh.admin.remote.dto.resp.ShortLinkPageRespDTO;
+import org.yzh.admin.service.RecycleBinService;
 
 /**
  * 回收站控制层
@@ -20,6 +21,7 @@ import org.yzh.admin.remote.dto.resp.ShortLinkPageRespDTO;
 @RestController
 @RequiredArgsConstructor
 public class RecycleBinController {
+    private final RecycleBinService recycleBinService;
 
     /**
      * /后续重构为SpringCloud Feign调用
@@ -40,8 +42,8 @@ public class RecycleBinController {
      * 分页查询回收站短链接
      */
     @GetMapping("/api/shortLink/admin/v1/recycleBin/page")
-    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkPageReqDTO requestParma){
+    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkRecycleBinPageReqDTO requestParma){
 
-        return shortLinkRemoteService.pageRecycleBinShortLink(requestParma);
+        return recycleBinService.pageRecycleBinShortLink(requestParma);
     }
 }

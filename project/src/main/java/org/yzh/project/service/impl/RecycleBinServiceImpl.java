@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.yzh.project.dao.entity.ShortLinkDO;
 import org.yzh.project.dao.mapper.ShortLinkMapper;
 import org.yzh.project.dto.req.RecycleBinSaveReqDTO;
-import org.yzh.project.dto.req.ShortLinkPageReqDTO;
+import org.yzh.project.dto.req.ShortLinkRecycleBinPageReqDTO;
 import org.yzh.project.dto.resp.ShortLinkPageRespDTO;
 import org.yzh.project.service.RecycleBinService;
 
@@ -42,12 +42,12 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper,ShortLink
     }
 
     @Override
-    public IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkPageReqDTO requestParma) {
+    public IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkRecycleBinPageReqDTO requestParma) {
         LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
-                .eq(ShortLinkDO::getGid, requestParma.getGid())
+                .in(ShortLinkDO::getGid, requestParma.getGidList())
                 .eq(ShortLinkDO::getDelFlag, 0)
                 .eq(ShortLinkDO::getEnableStatus, 1)
-                .orderByDesc(ShortLinkDO::getCreateTime);
+                .orderByDesc(ShortLinkDO::getUpdateTime);
         IPage<ShortLinkDO> resultPage = baseMapper.selectPage(requestParma, lambdaQueryWrapper);
         return resultPage.convert(each -> {
             ShortLinkPageRespDTO result = BeanUtil.toBean(each, ShortLinkPageRespDTO.class);
