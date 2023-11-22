@@ -40,7 +40,9 @@ import org.yzh.project.toolkit.HashUtil;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
+import static org.yzh.project.common.constant.RedisKeyConstant.GOTO_IS_SHORT_LINK_KEY;
 import static org.yzh.project.common.constant.RedisKeyConstant.LOCK_GOTO_SHORT_LINK_KEY;
 
 /**
@@ -129,12 +131,19 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @SneakyThrows
     @Override
     public void restoreUrl(String shortLink, HttpServletRequest request, HttpServletResponse response) {
-            String serverName = request.getServerName();
+        String serverName = request.getServerName();
         String fullShortUrl = serverName + "/" + shortLink;
         String key = StrUtil.format(RedisKeyConstant.GOTO_SHORT_LINK_KEY, fullShortUrl);
         String originalLink = stringRedisTemplate.opsForValue().get(key);
         if (StrUtil.isNotBlank(originalLink)) {
             response.sendRedirect(originalLink);
+            return;
+        }
+        boolean flag = rBloomFilter.contains(fullShortUrl);
+        if(!flag)return;
+        String nullKey=StrUtil.format(GOTO_IS_SHORT_LINK_KEY,fullShortUrl);
+        String gotoIsNullShortLink=stringRedisTemplate.opsForValue().get(nullKey);
+        if (StrUtil.isNotBlank(gotoIsNullShortLink)){
             return;
         }
         RLock lock = redissonClient.getLock(StrUtil.format(LOCK_GOTO_SHORT_LINK_KEY, shortLink));
@@ -149,6 +158,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
             ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(shortLinkGotoDOLambdaQueryWrapper);
             if (shortLinkGotoDO == null) {
+                stringRedisTemplate.opsForValue().set(nullKey,"-",30, TimeUnit.SECONDS);
                 //严谨来说此处需要封控
                 return;
             }
