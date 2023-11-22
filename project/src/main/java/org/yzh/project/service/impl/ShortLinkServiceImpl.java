@@ -38,6 +38,8 @@ import org.yzh.project.service.ShortLinkService;
 import org.yzh.project.toolkit.HashUtil;
 import org.yzh.project.toolkit.LinkUtil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam) {
+    public ShortLinkCreateRespDTO createShortLink(ShortLinkCreateReqDTO requestParam){
+        String favicon=getFavicon(requestParam.getOriginUrl());
         String shortLinkSuffix = generateSuffix(requestParam);
         String fullShortUrl = StrBuilder.create(requestParam.getDomain())
                 .append("/")
@@ -77,6 +80,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .shortUri(shortLinkSuffix)
                 .enableStatus(0)
                 .fullShortUrl(fullShortUrl)
+                .favicon(favicon)
                 .build();
         ShortLinkGotoDO shortLinkGotoDO = ShortLinkGotoDO.builder()
                 .gid(requestParam.getGid())
@@ -256,5 +260,16 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             else customGenerateCount++;
         } while (true);
         return shortUri;
+    }
+    private  String  getFavicon(String url)  {
+        URL url1 = null;
+        try {
+            url1 = new URL(url);
+        } catch (MalformedURLException e) {
+            log.error("URL有问题");
+        }
+        String protocol = url1.getProtocol();
+        String host = url1.getHost();
+        return protocol + "://" + host + "/favicon.ico";
     }
 }
