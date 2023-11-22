@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.yzh.project.dao.entity.ShortLinkDO;
 import org.yzh.project.dao.mapper.ShortLinkMapper;
+import org.yzh.project.dto.req.RecycleBinDeleteReqDTO;
 import org.yzh.project.dto.req.RecycleBinRecoverReqDTO;
 import org.yzh.project.dto.req.RecycleBinSaveReqDTO;
 import org.yzh.project.dto.req.ShortLinkRecycleBinPageReqDTO;
@@ -70,5 +71,17 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper,ShortLink
                 .build();
         baseMapper.update(shortLinkDO,updateWrapper);
         stringRedisTemplate.delete(StrUtil.format(GOTO_IS_NULL_SHORT_LINK_KEY,requestParam.getFullShortUrl()));
+    }
+
+    @Override
+    public void removeRecycleBin(RecycleBinDeleteReqDTO requestParam) {
+        LambdaUpdateWrapper<ShortLinkDO> updateWrapper = Wrappers.lambdaUpdate(ShortLinkDO.class)
+                .eq(ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
+                .eq(ShortLinkDO::getGid, requestParam.getGid())
+                .eq(ShortLinkDO::getEnableStatus, 1)
+                .eq(ShortLinkDO::getDelFlag, 0);
+        ShortLinkDO shortLinkDO = new ShortLinkDO();
+        shortLinkDO.setDelFlag(1);
+        baseMapper.update(shortLinkDO,updateWrapper);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.yzh.admin.common.convention.result.Result;
 import org.yzh.admin.common.convention.result.Results;
 import org.yzh.admin.remote.dto.ShortLinkRemoteService;
+import org.yzh.admin.remote.dto.req.RecycleBinDeleteReqDTO;
 import org.yzh.admin.remote.dto.req.RecycleBinRecoverReqDTO;
 import org.yzh.admin.remote.dto.req.RecycleBinSaveReqDTO;
 import org.yzh.admin.remote.dto.req.ShortLinkRecycleBinPageReqDTO;
@@ -53,6 +54,14 @@ public class RecycleBinController {
     @PostMapping("api/shortLink/admin/v1/recycleBin/recover")
     public Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam) {
         shortLinkRemoteService.recoverRecycleBin(requestParam);
+        return Results.success();
+    }
+    /**
+     * 删除短链接
+     */
+    @PostMapping("api/shortLink/admin/v1/recycleBin/remove")
+    public Result<Void> removeRecycleBin(@RequestBody RecycleBinDeleteReqDTO requestParam){
+        shortLinkRemoteService.removeRecycleBin(requestParam);
         return Results.success();
     }
 }
