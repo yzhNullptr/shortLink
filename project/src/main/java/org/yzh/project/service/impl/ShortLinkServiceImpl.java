@@ -184,7 +184,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(ShortLinkDO::getDelFlag, 0)
                     .eq(ShortLinkDO::getEnableStatus, 0);
             ShortLinkDO shortLinkDO = baseMapper.selectOne(queryWrapper);
-            if (shortLinkDO.getValidDate()!=null&&shortLinkDO.getValidDate().before(new Date())){
+            if (shortLinkDO.getValidDate()==null||shortLinkDO.getValidDate().before(new Date())){
                 stringRedisTemplate.opsForValue().set(nullKey,"-",30, TimeUnit.SECONDS);
                 response.sendRedirect("/page/notfound");
                 return;
