@@ -15,4 +15,8 @@ spring:
     view:
       prefix: /templates/
       suffix: .html
+    static-path-pattern: /static/**
+  web:
+    resources:
+      static-locations: classpath:static/
 
