@@ -38,6 +38,7 @@ import org.yzh.project.service.ShortLinkService;
 import org.yzh.project.toolkit.HashUtil;
 import org.yzh.project.toolkit.LinkUtil;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -175,7 +176,16 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(ShortLinkDO::getDelFlag, 0)
                     .eq(ShortLinkDO::getEnableStatus, 0);
             ShortLinkDO shortLinkDO = baseMapper.selectOne(queryWrapper);
-            stringRedisTemplate.opsForValue().set(key, shortLinkDO.getOriginUrl());
+            if (shortLinkDO.getValidDate()!=null&&shortLinkDO.getValidDate().before(new Date())){
+                stringRedisTemplate.opsForValue().set(nullKey,"-",30, TimeUnit.SECONDS);
+                return;
+            }
+            stringRedisTemplate.opsForValue().set(
+                    key,
+                    fullShortUrl,
+                    LinkUtil.getLinkCacheValidDate(shortLinkDO.getValidDate()),
+                    TimeUnit.MILLISECONDS
+            );
             response.sendRedirect(shortLinkDO.getOriginUrl());
         } finally {
             lock.unlock();
