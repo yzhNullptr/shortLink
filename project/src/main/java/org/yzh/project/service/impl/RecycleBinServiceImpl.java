@@ -1,7 +1,10 @@
 package org.yzh.project.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.yzh.project.dao.entity.ShortLinkDO;
 import org.yzh.project.dao.mapper.ShortLinkMapper;
 import org.yzh.project.dto.req.RecycleBinSaveReqDTO;
+import org.yzh.project.dto.req.ShortLinkPageReqDTO;
+import org.yzh.project.dto.resp.ShortLinkPageRespDTO;
 import org.yzh.project.service.RecycleBinService;
 
 import static org.yzh.project.common.constant.RedisKeyConstant.GOTO_SHORT_LINK_KEY;
@@ -34,5 +39,20 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper,ShortLink
                 .build();
         baseMapper.update(shortLinkDO,updateWrapper);
         stringRedisTemplate.delete(StrUtil.format(GOTO_SHORT_LINK_KEY,requestParam.getFullShortUrl()));
+    }
+
+    @Override
+    public IPage<ShortLinkPageRespDTO> pageShortLink(ShortLinkPageReqDTO requestParma) {
+        LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = Wrappers.lambdaQuery(ShortLinkDO.class)
+                .eq(ShortLinkDO::getGid, requestParma.getGid())
+                .eq(ShortLinkDO::getDelFlag, 0)
+                .eq(ShortLinkDO::getEnableStatus, 1)
+                .orderByDesc(ShortLinkDO::getCreateTime);
+        IPage<ShortLinkDO> resultPage = baseMapper.selectPage(requestParma, lambdaQueryWrapper);
+        return resultPage.convert(each -> {
+            ShortLinkPageRespDTO result = BeanUtil.toBean(each, ShortLinkPageRespDTO.class);
+            result.setDomain("http://" + result.getDomain());
+            return result;
+        });
     }
 }

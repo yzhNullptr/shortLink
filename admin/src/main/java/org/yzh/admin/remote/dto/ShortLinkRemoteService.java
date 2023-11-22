@@ -82,4 +82,19 @@ public interface ShortLinkRemoteService {
 
     }
 
+    /**
+     * 分页查询回收站短链接
+     *
+     * @param requestParma 分页查询短链接请求参数
+     * @return 分页查询短链接响应
+     */
+    default Result<IPage<ShortLinkPageRespDTO>> pageRecycleBinShortLink(ShortLinkPageReqDTO requestParma){
+        Map<String,Object> requestMap=new HashMap<>();
+        requestMap.put("gid",requestParma.getGid());
+        requestMap.put("current",requestParma.getCurrent());
+        requestMap.put("size",requestParma.getSize());
+        String resultPageStr = HttpUtil.get("http://127.0.0.1:8001/api/shortLink/v1/recycleBin/page", requestMap);
+        return JSON.parseObject(resultPageStr, new TypeReference<>() {
+        });
+    }
 }
