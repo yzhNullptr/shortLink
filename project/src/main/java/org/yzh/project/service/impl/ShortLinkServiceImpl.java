@@ -156,7 +156,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             response.sendRedirect("/page/notfound");
             return;
         }
-        String nullKey=StrUtil.format(GOTO_IS_SHORT_LINK_KEY,fullShortUrl);
+        String nullKey=StrUtil.format(GOTO_IS_NULL_SHORT_LINK_KEY,fullShortUrl);
         String gotoIsNullShortLink=stringRedisTemplate.opsForValue().get(nullKey);
         if (StrUtil.isNotBlank(gotoIsNullShortLink)){
             response.sendRedirect("/page/notfound");

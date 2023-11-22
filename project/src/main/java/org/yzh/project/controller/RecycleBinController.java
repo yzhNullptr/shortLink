@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.yzh.project.common.convention.result.Result;
 import org.yzh.project.common.convention.result.Results;
+import org.yzh.project.dto.req.RecycleBinRecoverReqDTO;
 import org.yzh.project.dto.req.RecycleBinSaveReqDTO;
 import org.yzh.project.dto.req.ShortLinkRecycleBinPageReqDTO;
 import org.yzh.project.dto.resp.ShortLinkPageRespDTO;
@@ -26,7 +27,7 @@ public class RecycleBinController {
      * 保存回收站
      */
     @PostMapping("/api/shortLink/v1/recycleBin/save")
-    public Result<Void> saveRecycleBin(@RequestBody RecycleBinSaveReqDTO requestParam){
+    public Result<Void> saveRecycleBin(@RequestBody RecycleBinSaveReqDTO requestParam) {
         recycleBinService.saveRecycleBin(requestParam);
         return Results.success();
     }
@@ -35,8 +36,17 @@ public class RecycleBinController {
      * 分页查询回收站短链接
      */
     @GetMapping("/api/shortLink/v1/recycleBin/page")
-    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkRecycleBinPageReqDTO requestParma){
+    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(ShortLinkRecycleBinPageReqDTO requestParma) {
 
         return Results.success(recycleBinService.pageShortLink(requestParma));
+    }
+
+    /**
+     * 回复短链接
+     */
+    @PostMapping("api/shortLink/v1/recycleBin/recover")
+    public Result<Void> recoverRecycleBin(@RequestBody RecycleBinRecoverReqDTO requestParam) {
+        recycleBinService.recoverRecycleBin(requestParam);
+        return Results.success();
     }
 }
