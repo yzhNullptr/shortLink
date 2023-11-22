@@ -27,6 +27,9 @@ public class ShortLinkController {
     private final ShortLinkService shortLinkService;
 
 
+    /**
+     * 短链接跳转原始链接
+     */
     @GetMapping("/{shortLink}")
     public void restoreUrl(@PathVariable("shortLink") String shortLink, HttpServletRequest request, HttpServletResponse response){
          shortLinkService.restoreUrl(shortLink,request,response);
