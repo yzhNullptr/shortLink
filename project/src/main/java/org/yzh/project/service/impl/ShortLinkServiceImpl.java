@@ -24,8 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.yzh.project.common.constant.RedisKeyConstant;
 import org.yzh.project.common.convention.exception.ServiceException;
 import org.yzh.project.common.enums.ValidDateTypeEnum;
+import org.yzh.project.dao.entity.LinkAccessStatsDO;
 import org.yzh.project.dao.entity.ShortLinkDO;
 import org.yzh.project.dao.entity.ShortLinkGotoDO;
+import org.yzh.project.dao.mapper.LinkAccessStatsMapper;
 import org.yzh.project.dao.mapper.ShortLinkGotoMapper;
 import org.yzh.project.dao.mapper.ShortLinkMapper;
 import org.yzh.project.dto.req.ShortLinkCreateReqDTO;
@@ -40,6 +42,8 @@ import org.yzh.project.toolkit.LinkUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.temporal.WeekFields;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +63,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final ShortLinkGotoMapper shortLinkGotoMapper;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
+    private final LinkAccessStatsMapper linkAccessStatsMapper;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -143,11 +148,13 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @SneakyThrows
     @Override
     public void restoreUrl(String shortLink, HttpServletRequest request, HttpServletResponse response) {
+        if (Objects.equals(shortLink,"favicon.ico"))return;
         String serverName = request.getServerName();
         String fullShortUrl = serverName + "/" + shortLink;
         String key = StrUtil.format(RedisKeyConstant.GOTO_SHORT_LINK_KEY, fullShortUrl);
         String originalLink = stringRedisTemplate.opsForValue().get(key);
         if (StrUtil.isNotBlank(originalLink)) {
+            shortLinkStats(fullShortUrl, null, request,response);
             response.sendRedirect(originalLink);
             return;
         }
@@ -167,6 +174,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         try {
             originalLink = stringRedisTemplate.opsForValue().get(key);
             if (StrUtil.isNotBlank(originalLink)) {
+                shortLinkStats(fullShortUrl, null, request,response);
                 response.sendRedirect(originalLink);
                 return;
             }
@@ -184,22 +192,48 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq(ShortLinkDO::getDelFlag, 0)
                     .eq(ShortLinkDO::getEnableStatus, 0);
             ShortLinkDO shortLinkDO = baseMapper.selectOne(queryWrapper);
-            if (shortLinkDO.getValidDate()==null||shortLinkDO.getValidDate().before(new Date())){
+            if (shortLinkDO.getValidDate()!=null&&shortLinkDO.getValidDate().before(new Date())){
                 stringRedisTemplate.opsForValue().set(nullKey,"-",30, TimeUnit.SECONDS);
                 response.sendRedirect("/page/notfound");
                 return;
             }
             stringRedisTemplate.opsForValue().set(
                     key,
-                    fullShortUrl,
+                    shortLinkDO.getOriginUrl(),
                     LinkUtil.getLinkCacheValidDate(shortLinkDO.getValidDate()),
                     TimeUnit.MILLISECONDS
             );
+            shortLinkStats(fullShortUrl, shortLinkDO.getGid(), request,response);
             response.sendRedirect(shortLinkDO.getOriginUrl());
         } finally {
             lock.unlock();
         }
 
+    }
+
+    private void shortLinkStats(String fullShortUrl,String gid,HttpServletRequest request, HttpServletResponse response){
+        try{
+            if(StrUtil.isBlank(gid)){
+                LambdaQueryWrapper<ShortLinkGotoDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDO.class)
+                        .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
+                ShortLinkGotoDO shortLinkGotoDO = shortLinkGotoMapper.selectOne(queryWrapper);
+                gid=shortLinkGotoDO.getGid();
+            }
+            LocalDateTime now = LocalDateTime.now();
+            int hour = now.getHour();
+            int weekValue = now.get(WeekFields.ISO.weekOfMonth());
+            LinkAccessStatsDO linkAccessStatsDO = LinkAccessStatsDO.builder()
+                    .gid(gid)
+                    .fullShortUrl(fullShortUrl)
+                    .pv(1)
+                    .hour(hour)
+                    .weekday(weekValue)
+                    .date(new Date())
+                    .build();
+            linkAccessStatsMapper.shortLinkStats(linkAccessStatsDO);
+        }catch (Throwable ex){
+            log.error("短链接访问量统计异常",ex);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
