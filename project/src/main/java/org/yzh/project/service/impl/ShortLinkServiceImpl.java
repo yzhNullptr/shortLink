@@ -70,7 +70,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Value("${short-link.stats.locate.amap-Key}")
     private String statsLocateKey;
     private final LinkOSStatsMapper linkOSStatsMapper;
-
+private final LinkBrowserStatsMapper linkBrowserStatsMapper;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -299,6 +299,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                         .date(new Date())
                         .build();
                 linkOSStatsMapper.shortLinkOSStatus(linkOSStatsDO);
+                LinkBrowserStatsDO linkBrowserStatsDO = LinkBrowserStatsDO.builder()
+                        .gid(gid)
+                        .fullShortUrl(fullShortUrl)
+                        .browser( LinkUtil.getBrowser(request))
+                        .cnt(1)
+                        .date(new Date())
+                        .build();
+                linkBrowserStatsMapper.shortLinkBrowserStats(linkBrowserStatsDO);
             }
 
         } catch (Throwable ex) {
