@@ -23,6 +23,12 @@ public class LinkUtil {
                 .map(each-> DateUtil.between(new Date(),each, DateUnit.MS))
                 .orElse(DEFAULT_CACHE_VALID_TIME);
     }
+
+    /**
+     * 获取用户真实ip
+     * @param request 请求
+     * @return 真实ip
+     */
     public static String getActualIp(HttpServletRequest request){
         String ip = request.getHeader("x-forwarded-for");
         if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
@@ -48,5 +54,32 @@ public class LinkUtil {
         }
         return ip;
 
+    }
+
+    /**
+     * 获取用户访问操作系统
+     * @param request 请求
+     * @return 访问操作系统
+     */
+    public static String getOS(HttpServletRequest request){
+        String userAgent = request.getHeader("User-Agent");
+
+        if (userAgent != null) {
+            userAgent = userAgent.toLowerCase();
+
+            if (userAgent.contains("windows")) {
+                return "Windows";
+            } else if (userAgent.contains("mac")) {
+                return "Macintosh";
+            } else if (userAgent.contains("linux")) {
+                return "Linux";
+            } else if (userAgent.contains("android")) {
+                return "Android";
+            } else if (userAgent.contains("iphone") || userAgent.contains("ipad")) {
+                return "iOS";
+            }
+        }
+
+        return "Unknown";
     }
 }

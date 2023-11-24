@@ -31,14 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.yzh.project.common.constant.RedisKeyConstant;
 import org.yzh.project.common.convention.exception.ServiceException;
 import org.yzh.project.common.enums.ValidDateTypeEnum;
-import org.yzh.project.dao.entity.LinkAccessStatsDO;
-import org.yzh.project.dao.entity.LinkLocateStatsDO;
-import org.yzh.project.dao.entity.ShortLinkDO;
-import org.yzh.project.dao.entity.ShortLinkGotoDO;
-import org.yzh.project.dao.mapper.LinkAccessStatsMapper;
-import org.yzh.project.dao.mapper.LinkLocateStatsMapper;
-import org.yzh.project.dao.mapper.ShortLinkGotoMapper;
-import org.yzh.project.dao.mapper.ShortLinkMapper;
+import org.yzh.project.dao.entity.*;
+import org.yzh.project.dao.mapper.*;
 import org.yzh.project.dto.req.ShortLinkCreateReqDTO;
 import org.yzh.project.dto.req.ShortLinkPageReqDTO;
 import org.yzh.project.dto.req.ShortLinkUpdateReqDTO;
@@ -75,6 +69,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final LinkLocateStatsMapper linkLocateStatsMapper;
     @Value("${short-link.stats.locate.amap-Key}")
     private String statsLocateKey;
+    private final LinkOSStatsMapper linkOSStatsMapper;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -296,6 +291,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                         .date(new Date())
                         .build();
                 linkLocateStatsMapper.shortLinkLocateStatus(linkLocateStatsDO);
+                LinkOSStatsDO linkOSStatsDO = LinkOSStatsDO.builder()
+                        .gid(gid)
+                        .fullShortUrl(fullShortUrl)
+                        .os( LinkUtil.getOS(request))
+                        .cnt(1)
+                        .date(new Date())
+                        .build();
+                linkOSStatsMapper.shortLinkOSStatus(linkOSStatsDO);
             }
 
         } catch (Throwable ex) {

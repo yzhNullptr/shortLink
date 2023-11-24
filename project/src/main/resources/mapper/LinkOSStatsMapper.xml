@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.yzh.project.dao.mapper.LinkOSStatsMapper">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="org.yzh.project.dao.entity.LinkOSStatsDO" id="LinkOSStatsMap">
+        <result property="gid" column="gid"/>
+        <result property="fullShortUrl" column="fullShortUrl"/>
+        <result property="date" column="date"/>
+        <result property="os" column="os"/>
+        <result property="createTime" column="createTime"/>
+        <result property="updateTime" column="updateTime"/>
+        <result property="delFlag" column="delFlag"/>
+    </resultMap>
+    <insert id="shortLinkOSStatus" parameterType="org.yzh.project.dao.entity.LinkOSStatsDO">
+        INSERT INTO
+            t_link_os_stats
+        (full_short_url,gid,date,cnt,os,create_time,update_time,del_flag)
+        VALUES(#{linkOSStats.fullShortUrl},#{linkOSStats.gid},#{linkOSStats.date},#{linkOSStats.cnt},#{linkOSStats.os},NOW(),NOW(),0)
+            ON DUPLICATE KEY
+        UPDATE cnt=cnt+#{linkOSStats.cnt};
+    </insert>
+</mapper>
