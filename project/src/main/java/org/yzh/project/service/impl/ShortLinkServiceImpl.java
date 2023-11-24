@@ -31,6 +31,7 @@ import org.yzh.project.dao.entity.LinkAccessStatsDO;
 import org.yzh.project.dao.entity.ShortLinkDO;
 import org.yzh.project.dao.entity.ShortLinkGotoDO;
 import org.yzh.project.dao.mapper.LinkAccessStatsMapper;
+import org.yzh.project.dao.mapper.LinkLocateStatsMapper;
 import org.yzh.project.dao.mapper.ShortLinkGotoMapper;
 import org.yzh.project.dao.mapper.ShortLinkMapper;
 import org.yzh.project.dto.req.ShortLinkCreateReqDTO;
@@ -65,6 +66,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
     private final LinkAccessStatsMapper linkAccessStatsMapper;
+    private final LinkLocateStatsMapper linkLocateStatsMapper;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -213,7 +215,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     }
 
     private void shortLinkStats(String fullShortUrl,String gid,HttpServletRequest request, HttpServletResponse response){
-        String key="shortLink:stats:uv:" + fullShortUrl;
+        String uvKey="shortLink:stats:uv:" + fullShortUrl;
+        String uipKey="shortLink:stats:uip:" + fullShortUrl;
         AtomicBoolean uvFirstFlag=new AtomicBoolean();
         try{
             Runnable addResponseCookie=()->{
@@ -223,6 +226,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 uvCookie.setPath(StrUtil.sub(fullShortUrl,fullShortUrl.indexOf("/"),fullShortUrl.length()));
                 response.addCookie(uvCookie);
                 uvFirstFlag.set(Boolean.TRUE);
+                stringRedisTemplate.opsForSet().add(uvKey,uv);
             };
             Cookie[] cookies = request.getCookies();
             if (ArrayUtil.isNotEmpty(cookies)){
@@ -230,12 +234,16 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                         .filter(echo->Objects.equals(echo.getName(),"uv"))
                         .findFirst().map(Cookie::getValue)
                         .ifPresentOrElse(cookie->{
-                            Boolean member = stringRedisTemplate.opsForSet().isMember(key, cookie);
-                            uvFirstFlag.set(Boolean.TRUE.equals(member));
+                            Boolean member = stringRedisTemplate.opsForSet().isMember(uvKey, cookie);
+                            uvFirstFlag.set(Boolean.FALSE.equals(member));
                         },addResponseCookie);
             }else{
                 addResponseCookie.run();
             }
+            String ipAddress = LinkUtil.getActualIp(request);
+            Boolean uipFlag = stringRedisTemplate.opsForSet().isMember(uipKey, ipAddress);
+            if (Boolean.FALSE.equals(uipFlag))stringRedisTemplate.opsForSet().add(uipKey,ipAddress);
+
             if(StrUtil.isBlank(gid)){
                 LambdaQueryWrapper<ShortLinkGotoDO> queryWrapper = Wrappers.lambdaQuery(ShortLinkGotoDO.class)
                         .eq(ShortLinkGotoDO::getFullShortUrl, fullShortUrl);
@@ -250,6 +258,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .fullShortUrl(fullShortUrl)
                     .uv(uvFirstFlag.get()?1:0)
                     .pv(1)
+                    .uip(Boolean.FALSE.equals(uipFlag) ?1:0)
                     .hour(hour)
                     .weekday(weekValue)
                     .date(new Date())
@@ -259,7 +268,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             log.error("短链接访问量统计异常",ex);
         }
     }
-
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void updateShortLink(ShortLinkUpdateReqDTO requestParam) {
