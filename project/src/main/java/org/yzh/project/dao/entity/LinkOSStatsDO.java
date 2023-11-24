@@ -20,7 +20,12 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LinkOSStatsDO extends BaseDO {
+    /**
+     * ID
+     */
     @TableId(type = IdType.AUTO)
+    private Long id;
+
     /**
      * 完整短链接
      */

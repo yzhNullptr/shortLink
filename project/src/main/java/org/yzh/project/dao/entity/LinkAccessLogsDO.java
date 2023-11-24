@@ -1,5 +1,7 @@
 package org.yzh.project.dao.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,17 +9,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.yzh.project.common.database.BaseDO;
 
-import java.util.Date;
-
-/**
- * 监控浏览器实体
- */
-@TableName(value = "t_link_browser_stats")
+@TableName(value = "t_link_access_logs")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LinkBrowserStatsDO extends BaseDO {
+public class LinkAccessLogsDO extends BaseDO {
+    /**
+     * ID
+     */
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
     /**
      * 完整短链接
      */
@@ -29,17 +32,21 @@ public class LinkBrowserStatsDO extends BaseDO {
     private String gid;
 
     /**
-     * 日期
-     */
-    private Date date;
-
-    /**
-     * 访问量
-     */
-    private Integer cnt;
-
-    /**
      * 浏览器
      */
     private String browser;
+
+    /**
+     * 操作系统
+     */
+    private String os;
+
+    /**
+     * ip
+     */
+    private String ip;
+    /**
+     * 用户
+     */
+    private String user;
 }

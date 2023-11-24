@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yzh.project.dao.mapper.LinkAccessLogsMapper">
+
+    <resultMap id="BaseResultMap" type="org.yzh.project.dao.entity.LinkAccessLogsDO" >
+        <result column="full_short_url" property="fullShortUrl" />
+        <result column="gid" property="gid" />
+        <result column="browser" property="browser" />
+        <result column="os" property="os" />
+        <result column="ip" property="ip" />
+        <result column="user" property="user" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+</mapper>

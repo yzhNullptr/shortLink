@@ -50,6 +50,7 @@ import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.yzh.project.common.constant.RedisKeyConstant.*;
 import static org.yzh.project.common.constant.ShortLinkConstant.AMAP_REMOTE_URL;
@@ -71,6 +72,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private String statsLocateKey;
     private final LinkOSStatsMapper linkOSStatsMapper;
 private final LinkBrowserStatsMapper linkBrowserStatsMapper;
+private final LinkAccessLogsMapper linkAccessLogsMapper;
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -222,15 +225,16 @@ private final LinkBrowserStatsMapper linkBrowserStatsMapper;
         String uvKey = "shortLink:stats:uv:" + fullShortUrl;
         String uipKey = "shortLink:stats:uip:" + fullShortUrl;
         AtomicBoolean uvFirstFlag = new AtomicBoolean();
+        AtomicReference<String> uv=new AtomicReference<>();
         try {
             Runnable addResponseCookie = () -> {
-                String uv = UUID.fastUUID().toString();
-                Cookie uvCookie = new Cookie("uv", uv);
+                uv.set(UUID.fastUUID().toString());
+                Cookie uvCookie = new Cookie("uv", uv.get());
                 uvCookie.setMaxAge(60 * 60 * 24 * 15);
                 uvCookie.setPath(StrUtil.sub(fullShortUrl, fullShortUrl.indexOf("/"), fullShortUrl.length()));
                 response.addCookie(uvCookie);
                 uvFirstFlag.set(Boolean.TRUE);
-                stringRedisTemplate.opsForSet().add(uvKey, uv);
+                stringRedisTemplate.opsForSet().add(uvKey, uv.get());
             };
             Cookie[] cookies = request.getCookies();
             if (ArrayUtil.isNotEmpty(cookies)) {
@@ -238,6 +242,7 @@ private final LinkBrowserStatsMapper linkBrowserStatsMapper;
                         .filter(echo -> Objects.equals(echo.getName(), "uv"))
                         .findFirst().map(Cookie::getValue)
                         .ifPresentOrElse(cookie -> {
+                            uv.set(cookie);
                             Boolean member = stringRedisTemplate.opsForSet().isMember(uvKey, cookie);
                             uvFirstFlag.set(Boolean.FALSE.equals(member));
                         }, addResponseCookie);
@@ -307,6 +312,15 @@ private final LinkBrowserStatsMapper linkBrowserStatsMapper;
                         .date(new Date())
                         .build();
                 linkBrowserStatsMapper.shortLinkBrowserStats(linkBrowserStatsDO);
+                LinkAccessLogsDO linkAccessLogsDO = LinkAccessLogsDO.builder()
+                        .gid(gid)
+                        .fullShortUrl(fullShortUrl)
+                        .ip(LinkUtil.getActualIp(request))
+                        .os( LinkUtil.getOS(request))
+                        .user(uv.get())
+                        .browser( LinkUtil.getBrowser(request))
+                        .build();
+                linkAccessLogsMapper.insert(linkAccessLogsDO);
             }
 
         } catch (Throwable ex) {
