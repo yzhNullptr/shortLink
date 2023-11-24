@@ -19,4 +19,10 @@ spring:
   web:
     resources:
       static-locations: classpath:static/
+short-link:
+  stats:
+    locate:
+      amap-Key: 069017c9ffeb1bc6d82bc132b6a352ae
+
+
 

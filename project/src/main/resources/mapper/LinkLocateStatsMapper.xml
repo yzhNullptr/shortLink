@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.yzh.project.dao.mapper.LinkLocateStatsMapper">
+
+    <resultMap id="LinkLocateStatsDO" type="org.yzh.project.dao.entity.LinkLocateStatsDO" >
+        <result column="full_short_url" property="fullShortUrl" />
+        <result column="gid" property="gid" />
+        <result column="date" property="date" />
+        <result column="cnt" property="cnt" />
+        <result column="province" property="province" />
+        <result column="city" property="city" />
+        <result column="adcode" property="adcode" />
+        <result column="country" property="country" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="del_flag" property="delFlag" />
+    </resultMap>
+
+    <insert id="shortLinkLocateStatus" parameterType="org.yzh.project.dao.entity.LinkLocateStatsDO">
+        INSERT INTO
+            t_link_locate_stats
+        (full_short_url,gid,date,cnt,province,city,adcode,country,create_time,update_time,del_flag)
+        VALUES(#{linkLocateStats.fullShortUrl},#{linkLocateStats.gid},#{linkLocateStats.date},#{linkLocateStats.cnt},#{linkLocateStats.province},#{linkLocateStats.city},#{linkLocateStats.adcode},#{linkLocateStats.country},NOW(),NOW(),0)
+            ON DUPLICATE KEY
+        UPDATE cnt=cnt+#{linkLocateStats.cnt};
+    </insert>
+</mapper>
